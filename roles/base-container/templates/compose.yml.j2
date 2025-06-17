@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: base
     hostname: base
+    network_mode: host
     user: "1000:996"
     volumes:
       # Mount home directory
