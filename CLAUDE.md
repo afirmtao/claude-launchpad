@@ -18,6 +18,8 @@ roles/
    time-setup/           # timezone and NTP setup
    security-hardening/   # security configuration
    docker-setup/         # Docker installation
+   caddy-setup/          # Caddy web server
+   base-container/       # Development container
        tasks/
            main.yml      # main tasks file
        handlers/         # event handlers (optional)
@@ -86,6 +88,16 @@ scripts/                # helper scripts
 - Hardened systemd service with security features
 - Email for certificate notifications configurable via `caddy_email` variable
 
+## Base Container Setup
+
+- Arch Linux container with development tools (base-devel, nodejs, npm)
+- Docker tools (docker, docker-compose, docker-buildx) with host socket access
+- Claude-code CLI tool pre-installed via npm global installation
+- Zellij terminal multiplexer with Dracula theme and session persistence
+- Home directory and Docker socket mounted from host for seamless development
+- User/group mapping (1000:996) for proper Docker socket permissions
+- Container accessible via `make login-base FQDN=domain.com`
+
 ## Roles Overview
 
 - **system-update**: Updates system packages and checks for reboot requirements
@@ -95,12 +107,14 @@ scripts/                # helper scripts
 - **security-hardening**: Applies OS hardening, SSH hardening, and firewall configuration
 - **docker-setup**: Installs Docker and configures user permissions
 - **caddy-setup**: Installs Caddy web server with automatic HTTPS, security headers, and structured logging
+- **base-container**: Creates development container with tools and persistent sessions
 
 ## Commands
 
 - `make provision FQDN=domain.com` - Provision a new server
 - `make verify FQDN=domain.com` - Verify server configuration
 - `make login FQDN=domain.com` - SSH into server as admin user
+- `make login-base FQDN=domain.com` - Login to base development container
 - `make requirements` - Install Ansible requirements
 - `make lint` - Lint YAML files
 - `make format` - Format YAML and shell scripts

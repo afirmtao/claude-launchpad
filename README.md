@@ -10,6 +10,8 @@ A comprehensive Ansible project for provisioning and securing Debian 12 VPS serv
 - **Time Synchronization**: Timezone configuration and NTP setup
 - **Security Hardening**: OS hardening, SSH hardening, and UFW firewall
 - **Docker Installation**: Docker with user permissions for sudo-less access
+- **Caddy Web Server**: Automatic HTTPS with Let's Encrypt and security headers
+- **Development Container**: Arch Linux container with development tools and claude-code
 - **Comprehensive Verification**: Automated checks for all configurations
 
 ## Quick Start
@@ -42,6 +44,7 @@ A comprehensive Ansible project for provisioning and securing Debian 12 VPS serv
 | `make provision FQDN=domain.com` | Provision a new server |
 | `make verify FQDN=domain.com` | Verify server configuration |
 | `make login FQDN=domain.com` | SSH into server as admin user |
+| `make login-base FQDN=domain.com` | Login to base development container |
 | `make lint` | Lint YAML files |
 | `make format` | Format YAML and shell scripts |
 
@@ -60,7 +63,9 @@ A comprehensive Ansible project for provisioning and securing Debian 12 VPS serv
 │   ├── swap-setup/                 # Swap configuration
 │   ├── time-setup/                 # Timezone & NTP
 │   ├── security-hardening/         # Security configuration
-│   └── docker-setup/               # Docker installation
+│   ├── docker-setup/               # Docker installation
+│   ├── caddy-setup/                # Caddy web server
+│   └── base-container/             # Development container
 ├── scripts/                        # Helper scripts
 ├── playbook-provision.yml          # Main playbook
 ├── requirements.yml                # External roles/collections
@@ -112,6 +117,21 @@ admin_ssh_key: "ssh-ed25519 AAAAC3... your-key-here"
 - Docker service enabled and started automatically
 - Verification checks ensure proper installation
 
+### Caddy Web Server
+
+- Automatic HTTPS with Let's Encrypt certificates
+- Security headers (HSTS, XSS protection, content type options)
+- Structured JSON logging with rotation
+- Hardened systemd service configuration
+
+### Development Container
+
+- Arch Linux base with development tools (base-devel, nodejs, npm)
+- Docker tools (docker, docker-compose, docker-buildx) with host socket access
+- Claude-code CLI tool pre-installed
+- Zellij terminal multiplexer with Dracula theme and session persistence
+- Home directory and Docker socket mounted from host
+
 ## Verification Checks
 
 The verification script checks:
@@ -127,6 +147,9 @@ The verification script checks:
 - ✅ /tmp directory writable
 - ✅ Docker installation
 - ✅ Docker user permissions
+- ✅ Caddy web server installation and HTTPS
+- ✅ Base container running with all tools
+- ✅ Development tools (claude-code, docker, zellij) in container
 
 ## Requirements
 
