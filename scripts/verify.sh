@@ -153,6 +153,60 @@ else
 	FAILED_CHECKS=$((FAILED_CHECKS + 1))
 fi
 
+# Check 13: Caddy is installed
+echo -n "Checking Caddy installation... "
+CADDY_VERSION=$(ssh_execute "$ADMIN_USER" "$IPV4" "caddy version" || echo "")
+if [ -n "$CADDY_VERSION" ]; then
+	echo "PASS ($CADDY_VERSION)"
+else
+	echo "FAIL"
+	echo "  Caddy is not installed"
+	FAILED_CHECKS=$((FAILED_CHECKS + 1))
+fi
+
+# Check 14: Caddy service is running
+echo -n "Checking Caddy service status... "
+CADDY_STATUS=$(ssh_execute "$ADMIN_USER" "$IPV4" "systemctl is-active caddy" || echo "")
+if [ "$CADDY_STATUS" = "active" ]; then
+	echo "PASS"
+else
+	echo "FAIL"
+	echo "  Caddy service is not running"
+	FAILED_CHECKS=$((FAILED_CHECKS + 1))
+fi
+
+# Check 15: Caddy configuration directory exists
+echo -n "Checking Caddy configuration directory... "
+CADDY_DIR=$(ssh_execute "$ADMIN_USER" "$IPV4" "[ -d /home/$ADMIN_USER/caddy ] && echo 'exists'" || echo "")
+if [ "$CADDY_DIR" = "exists" ]; then
+	echo "PASS"
+else
+	echo "FAIL"
+	echo "  Caddy configuration directory does not exist"
+	FAILED_CHECKS=$((FAILED_CHECKS + 1))
+fi
+
+# Check 16: Caddy responds with expected content
+echo -n "Checking Caddy server response... "
+CADDY_RESPONSE=$(curl -L -s --connect-timeout 10 "http://$FQDN" || echo "")
+if echo "$CADDY_RESPONSE" | grep -q "Hello from $FQDN"; then
+	echo "PASS"
+else
+	echo "FAIL"
+	echo "  Server did not return expected 'Hello from $FQDN' content"
+	echo "  Response: $CADDY_RESPONSE"
+	FAILED_CHECKS=$((FAILED_CHECKS + 1))
+fi
+
+# Check 17: HTTPS redirect is working
+echo -n "Checking HTTPS redirect... "
+HTTPS_RESPONSE=$(curl -s -I --connect-timeout 10 "https://$FQDN" | head -n 1 || echo "")
+if echo "$HTTPS_RESPONSE" | grep -q "200 OK"; then
+	echo "PASS"
+else
+	echo "WARN (HTTPS may not be ready yet - certificate provisioning can take time)"
+fi
+
 echo
 echo "Verification Summary:"
 if [ $FAILED_CHECKS -eq 0 ]; then

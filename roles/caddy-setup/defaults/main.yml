@@ -1,0 +1,4 @@
+---
+caddy_user: "{{ admin_user }}"
+caddy_user_home: "/home/{{ admin_user }}"
+caddy_fqdn: "{{ inventory_hostname }}"

@@ -1,0 +1,36 @@
+# Global options
+{
+    email {{ caddy_email }}
+    admin off
+}
+
+# Default site configuration
+{{ caddy_fqdn }} {
+    respond "Hello from {{ caddy_fqdn }}!"
+    
+    # Security headers
+    header {
+        # Enable HSTS
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        # Prevent MIME type sniffing
+        X-Content-Type-Options "nosniff"
+        # Prevent clickjacking
+        X-Frame-Options "DENY"
+        # XSS protection
+        X-XSS-Protection "1; mode=block"
+        # Referrer policy
+        Referrer-Policy "strict-origin-when-cross-origin"
+        # Remove server header
+        -Server
+    }
+    
+    # Logging
+    log {
+        output file {{ caddy_user_home }}/caddy/logs/{{ caddy_fqdn }}.log {
+            roll_size 100mb
+            roll_keep 5
+            roll_keep_for 720h
+        }
+        format json
+    }
+}

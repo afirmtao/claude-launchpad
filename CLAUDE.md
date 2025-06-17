@@ -76,6 +76,16 @@ scripts/                # helper scripts
 - Docker installation occurs after security hardening
 - Verification checks ensure Docker is properly installed and accessible
 
+## Caddy Setup
+
+- Caddy is installed from official repository with GPG verification
+- Configuration stored in `~/caddy/` directory with `logs/` subdirectory
+- Automatic HTTPS with Let's Encrypt certificate provisioning
+- Security headers configured (HSTS, XSS protection, content type options)
+- Structured JSON logging with log rotation
+- Hardened systemd service with security features
+- Email for certificate notifications configurable via `caddy_email` variable
+
 ## Roles Overview
 
 - **system-update**: Updates system packages and checks for reboot requirements
@@ -84,6 +94,7 @@ scripts/                # helper scripts
 - **time-setup**: Sets timezone and configures NTP synchronization
 - **security-hardening**: Applies OS hardening, SSH hardening, and firewall configuration
 - **docker-setup**: Installs Docker and configures user permissions
+- **caddy-setup**: Installs Caddy web server with automatic HTTPS, security headers, and structured logging
 
 ## Commands
 
