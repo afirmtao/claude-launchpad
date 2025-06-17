@@ -1,0 +1,49 @@
+---
+- name: Create Caddy reload service unit
+  ansible.builtin.template:
+    src: caddy-reload.service.j2
+    dest: /etc/systemd/system/caddy-reload.service
+    mode: '0644'
+  become: true
+  when: caddy_auto_reload_enabled
+  notify:
+    - Reload systemd
+    - Enable caddy auto-reload
+
+- name: Create Caddy reload path unit
+  ansible.builtin.template:
+    src: caddy-reload.path.j2
+    dest: /etc/systemd/system/caddy-reload.path
+    mode: '0644'
+  become: true
+  when: caddy_auto_reload_enabled
+  notify:
+    - Reload systemd
+    - Enable caddy auto-reload
+
+- name: Enable and start Caddy auto-reload path unit
+  ansible.builtin.systemd:
+    name: caddy-reload.path
+    enabled: true
+    state: started
+    daemon_reload: true
+  become: true
+  when: caddy_auto_reload_enabled
+
+- name: Verify Caddy auto-reload path unit is active
+  ansible.builtin.systemd:
+    name: caddy-reload.path
+  register: caddy_reload_path_status
+  when: caddy_auto_reload_enabled
+  failed_when: caddy_reload_path_status.status.ActiveState != "active"
+
+- name: Remove Caddy auto-reload units when disabled
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  become: true
+  loop:
+    - /etc/systemd/system/caddy-reload.service
+    - /etc/systemd/system/caddy-reload.path
+  when: not caddy_auto_reload_enabled
+  notify: Reload systemd

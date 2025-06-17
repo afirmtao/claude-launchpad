@@ -132,3 +132,15 @@
     - name: Verify Zellij installation in base container
       ansible.builtin.command: docker exec base zellij --version
       changed_when: false
+
+    - name: Verify Caddy auto-reload path unit is active
+      ansible.builtin.systemd:
+        name: caddy-reload.path
+      register: caddy_reload_path_check
+      failed_when: caddy_reload_path_check.status.ActiveState != 'active'
+
+    - name: Verify Caddy auto-reload service unit exists
+      ansible.builtin.stat:
+        path: /etc/systemd/system/caddy-reload.service
+      register: caddy_reload_service_check
+      failed_when: not caddy_reload_service_check.stat.exists

@@ -87,6 +87,8 @@ scripts/                # helper scripts
 - Structured JSON logging with log rotation
 - Hardened systemd service with security features
 - Email for certificate notifications configurable via `caddy_email` variable
+- Automatic configuration reload when `~/caddy/Caddyfile` changes via systemd path units
+- Admin API enabled on localhost:2019 for zero-downtime configuration updates
 
 ## Base Container Setup
 
@@ -107,6 +109,7 @@ scripts/                # helper scripts
 - **security-hardening**: Applies OS hardening, SSH hardening, and firewall configuration
 - **docker-setup**: Installs Docker and configures user permissions
 - **caddy-setup**: Installs Caddy web server with automatic HTTPS, security headers, and structured logging
+- **caddy-auto-reload**: Configures automatic Caddy configuration reload on file changes
 - **base-container**: Creates development container with tools and persistent sessions
 
 ## Commands

@@ -1,0 +1,13 @@
+---
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+
+- name: Enable caddy auto-reload
+  ansible.builtin.systemd:
+    name: caddy-reload.path
+    enabled: true
+    state: started
+    daemon_reload: true
+  become: true

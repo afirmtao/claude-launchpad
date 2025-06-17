@@ -1,0 +1,10 @@
+[Unit]
+Description=Monitor Caddyfile for changes
+Documentation=https://caddyserver.com/docs/
+
+[Path]
+PathModified={{ caddy_config_path }}
+Unit=caddy-reload.service
+
+[Install]
+WantedBy=multi-user.target

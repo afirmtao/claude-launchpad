@@ -1,0 +1,21 @@
+[Unit]
+Description=Reload Caddy Configuration
+Documentation=https://caddyserver.com/docs/
+After=caddy.service
+Requires=caddy.service
+
+[Service]
+Type=oneshot
+User={{ caddy_user }}
+Group={{ caddy_user }}
+ExecStart=/usr/bin/caddy reload --config {{ caddy_config_path }}
+TimeoutStartSec={{ caddy_reload_timeout }}
+RemainAfterExit=no
+
+# Security settings
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+
+[Install]
+WantedBy=multi-user.target

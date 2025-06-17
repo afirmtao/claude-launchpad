@@ -1,0 +1,4 @@
+---
+caddy_auto_reload_enabled: true
+caddy_config_path: "{{ caddy_user_home }}/caddy/Caddyfile"
+caddy_reload_timeout: 30

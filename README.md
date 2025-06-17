@@ -10,7 +10,7 @@ A comprehensive Ansible project for provisioning and securing Debian 12 VPS serv
 - **Time Synchronization**: Timezone configuration and NTP setup
 - **Security Hardening**: OS hardening, SSH hardening, and UFW firewall
 - **Docker Installation**: Docker with user permissions for sudo-less access
-- **Caddy Web Server**: Automatic HTTPS with Let's Encrypt and security headers
+- **Caddy Web Server**: Automatic HTTPS with Let's Encrypt, security headers, and auto-reload
 - **Development Container**: Arch Linux container with development tools and claude-code
 - **Comprehensive Verification**: Automated checks for all configurations
 
@@ -123,6 +123,8 @@ admin_ssh_key: "ssh-ed25519 AAAAC3... your-key-here"
 - Security headers (HSTS, XSS protection, content type options)
 - Structured JSON logging with rotation
 - Hardened systemd service configuration
+- Automatic configuration reload when Caddyfile changes (zero-downtime)
+- Admin API enabled on localhost:2019 for seamless updates
 
 ### Development Container
 
@@ -148,6 +150,7 @@ The verification script checks:
 - ✅ Docker installation
 - ✅ Docker user permissions
 - ✅ Caddy web server installation and HTTPS
+- ✅ Caddy automatic configuration reload functionality
 - ✅ Base container running with all tools
 - ✅ Development tools (claude-code, docker, zellij) in container
 

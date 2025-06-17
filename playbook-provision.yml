@@ -12,6 +12,7 @@
     - security-hardening
     - docker-setup
     - caddy-setup
+    - caddy-auto-reload
     - base-container
 
   post_tasks:
