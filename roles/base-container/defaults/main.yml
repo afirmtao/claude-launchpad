@@ -1,0 +1,3 @@
+---
+# defaults file for roles/base-container
+base_dir: "/home/{{ admin_user }}/stacks/base"

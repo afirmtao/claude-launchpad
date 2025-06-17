@@ -1,0 +1,23 @@
+services:
+  base:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: base
+    hostname: base
+    volumes:
+      # Mount home directory
+      - /home/{{ admin_user }}:/home/{{ admin_user }}
+      # Mount Docker socket for Docker-in-Docker
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Mount system paths for monitoring (Prometheus/node_exporter)
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host/root:ro,rslave
+    environment:
+      - HOST_PROC=/host/proc
+      - HOST_SYS=/host/sys
+      - HOST_MOUNT_PREFIX=/host/root
+    stdin_open: true
+    tty: true
+    restart: unless-stopped

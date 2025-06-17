@@ -1,0 +1,42 @@
+---
+- name: Create stacks/base directory
+  ansible.builtin.file:
+    path: "{{ base_dir }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  become: true
+  become_user: "{{ admin_user }}"
+  tags: ['base-container']
+
+- name: Create Dockerfile from template
+  ansible.builtin.template:
+    src: Dockerfile.j2
+    dest: "{{ base_dir }}/Dockerfile"
+    mode: '0644'
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  become: true
+  become_user: "{{ admin_user }}"
+  tags: ['base-container']
+
+- name: Create compose.yml from template
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: "{{ base_dir }}/compose.yml"
+    mode: '0644'
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  become: true
+  become_user: "{{ admin_user }}"
+  tags: ['base-container']
+
+- name: Build and start base container
+  community.docker.docker_compose_v2:
+    project_src: "{{ base_dir }}"
+    build: always
+    state: present
+  become: true
+  become_user: "{{ admin_user }}"
+  tags: ['base-container']

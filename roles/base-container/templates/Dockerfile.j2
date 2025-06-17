@@ -1,0 +1,26 @@
+FROM archlinux:latest
+
+# Update system and install base packages
+RUN pacman -Syu --noconfirm && \
+    pacman -S --noconfirm base-devel nodejs npm sudo && \
+    pacman -Scc --noconfirm
+
+# Create non-root user matching host admin user
+RUN useradd -m -G wheel -s /bin/bash {{ admin_user }} && \
+    echo "{{ admin_user }} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Switch to non-root user
+USER {{ admin_user }}
+WORKDIR /home/{{ admin_user }}
+
+# Configure npm and install claude-code
+RUN mkdir -p ~/.npm/global && \
+    npm config set prefix ~/.npm/global && \
+    echo 'export PATH=~/.npm/global/bin:$PATH' >> ~/.bashrc && \
+    npm install -g @anthropic-ai/claude-code
+
+# Set environment variables
+ENV PATH="/home/{{ admin_user }}/.npm/global/bin:$PATH"
+
+# Keep container running
+CMD ["/bin/bash", "-l"]

@@ -9,7 +9,6 @@
     - name: Display verification header
       ansible.builtin.debug:
         msg: "Verifying server setup for {{ inventory_hostname }}..."
-      run_once: true
 
   tasks:
     - name: Check admin user sudo access
@@ -21,10 +20,16 @@
     - name: Evaluate sudo check
       ansible.builtin.set_fact:
         failed_checks: "{{ failed_checks | int + (1 if sudo_check.rc != 0 else 0) }}"
-        check_results: "{{ check_results + [{'name': 'Admin user sudo access', 'status': 'PASS' if sudo_check.rc == 0 else 'FAIL', 'details': 'Admin user does not have passwordless sudo' if sudo_check.rc != 0 else ''}] }}"
+        check_results: >-
+          {{ check_results + [{
+            'name': 'Admin user sudo access',
+            'status': 'PASS' if sudo_check.rc == 0 else 'FAIL',
+            'details': 'Admin user does not have passwordless sudo' if sudo_check.rc != 0 else ''
+          }] }}
 
     - name: Check swap configuration
-      ansible.builtin.shell: free -m | grep Swap || echo ""
+      ansible.builtin.shell:
+        cmd: set -o pipefail && free -m | grep Swap || echo ""
       register: swap_info
       changed_when: false
 
@@ -36,7 +41,13 @@
     - name: Set swap check result
       ansible.builtin.set_fact:
         failed_checks: "{{ failed_checks | int + (1 if (swap_total | default(0) | int) == 0 else 0) }}"
-        check_results: "{{ check_results + [{'name': 'Swap configuration', 'status': 'PASS' if (swap_total | default(0) | int) > 0 else 'FAIL', 'details': (swap_total | default(0)) + 'MB' if (swap_total | default(0) | int) > 0 else 'Could not retrieve swap information'}] }}"
+        check_results: >-
+          {{ check_results + [{
+            'name': 'Swap configuration',
+            'status': 'PASS' if (swap_total | default(0) | int) > 0 else 'FAIL',
+            'details': (swap_total | default(0)) + 'MB' if (swap_total | default(0) | int) > 0
+                       else 'Could not retrieve swap information'
+          }] }}
 
     - name: Check swappiness value
       ansible.builtin.slurp:
@@ -99,6 +110,7 @@
       ansible.builtin.file:
         path: /tmp/test_write
         state: touch
+        mode: '0644'
       register: tmp_write_check
       failed_when: false
 
@@ -192,6 +204,30 @@
     - name: Evaluate HTTPS
       ansible.builtin.set_fact:
         check_results: "{{ check_results + [{'name': 'HTTPS redirect', 'status': 'PASS' if https_response_check.status == 200 else 'WARN', 'details': '' if https_response_check.status == 200 else 'HTTPS may not be ready yet - certificate provisioning can take time'}] }}"
+
+    - name: Check base container running
+      ansible.builtin.command: docker ps --filter "name=base" --format "table {{ '{{.Names}}' }}\t{{ '{{.Status}}' }}"
+      register: base_container_check
+      failed_when: false
+      changed_when: false
+
+    - name: Evaluate base container
+      ansible.builtin.set_fact:
+        base_container_running: "{{ 'base' in base_container_check.stdout and 'Up' in base_container_check.stdout }}"
+        failed_checks: "{{ failed_checks | int + (1 if not ('base' in base_container_check.stdout and 'Up' in base_container_check.stdout) else 0) }}"
+        check_results: "{{ check_results + [{'name': 'Base container running', 'status': 'PASS' if ('base' in base_container_check.stdout and 'Up' in base_container_check.stdout) else 'FAIL', 'details': '' if ('base' in base_container_check.stdout and 'Up' in base_container_check.stdout) else 'Base container is not running'}] }}"
+
+    - name: Check claude-code in base container
+      ansible.builtin.command: docker exec base ~/.npm/global/bin/claude --version
+      register: claude_version_check
+      failed_when: false
+      changed_when: false
+      when: base_container_running | default(false)
+
+    - name: Evaluate claude-code installation
+      ansible.builtin.set_fact:
+        failed_checks: "{{ failed_checks | int + (1 if not base_container_running or claude_version_check.rc != 0 else 0) }}"
+        check_results: "{{ check_results + [{'name': 'Claude-code in base container', 'status': 'PASS' if base_container_running and claude_version_check.rc == 0 else 'FAIL', 'details': claude_version_check.stdout if base_container_running and claude_version_check.rc == 0 else 'Claude-code not available in base container'}] }}"
 
     - name: Display each check result
       ansible.builtin.debug:

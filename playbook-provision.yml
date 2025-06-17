@@ -12,6 +12,7 @@
     - security-hardening
     - docker-setup
     - caddy-setup
+    - base-container
 
   post_tasks:
     - name: Reboot if required

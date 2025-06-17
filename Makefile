@@ -23,3 +23,6 @@ verify: ## Verify server setup (usage: make verify FQDN=domain.com)
 
 login: ## SSH login to server (usage: make login FQDN=domain.com)
 	@./scripts/login.sh $(FQDN)
+
+login-base: ## Login to base container (usage: make login-base FQDN=domain.com)
+	@./scripts/login.sh $(FQDN) "docker exec -it base bash"
