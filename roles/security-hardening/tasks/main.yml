@@ -1,0 +1,71 @@
+---
+- name: Check if hardening flag exists
+  ansible.builtin.stat:
+    path: ~/.is_hardened
+  register: hardening_flag
+  tags: ['security-hardening']
+
+- name: Apply OS hardening (devsec.hardening.os_hardening)
+  ansible.builtin.include_role:
+    name: devsec.hardening.os_hardening
+  when: not hardening_flag.stat.exists
+  tags: ['security-hardening']
+
+- name: Apply SSH hardening (devsec.hardening.ssh_hardening)
+  ansible.builtin.include_role:
+    name: devsec.hardening.ssh_hardening
+  when: not hardening_flag.stat.exists
+  tags: ['security-hardening']
+
+- name: Create hardening flag
+  ansible.builtin.file:
+    path: ~/.is_hardened
+    state: touch
+    mode: '0644'
+  when: not hardening_flag.stat.exists
+  tags: ['security-hardening']
+
+- name: Apply Geerlingguy security role
+  ansible.builtin.include_role:
+    name: geerlingguy.security
+  tags: ['security-hardening']
+
+- name: Restart SSH service after security changes
+  ansible.builtin.systemd:
+    name: ssh
+    state: restarted
+  tags: ['security-hardening']
+
+- name: Install UFW firewall
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+    update_cache: true
+  tags: ['security-hardening']
+
+- name: Reset UFW to defaults
+  community.general.ufw:
+    state: reset
+  tags: ['security-hardening']
+
+- name: Set UFW default policies
+  community.general.ufw:
+    direction: "{{ item.direction }}"
+    policy: "{{ item.policy }}"
+  loop:
+    - { direction: 'incoming', policy: 'deny' }
+    - { direction: 'outgoing', policy: 'allow' }
+  tags: ['security-hardening']
+
+- name: Allow specified ports through UFW
+  community.general.ufw:
+    rule: allow
+    port: "{{ item.port }}"
+    proto: "{{ item.proto }}"
+  loop: "{{ firewall_allowed_ports }}"
+  tags: ['security-hardening']
+
+- name: Enable UFW
+  community.general.ufw:
+    state: enabled
+  tags: ['security-hardening']

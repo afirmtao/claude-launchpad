@@ -1,0 +1,3 @@
+---
+# Default timezone for the server
+server_timezone: Europe/Berlin

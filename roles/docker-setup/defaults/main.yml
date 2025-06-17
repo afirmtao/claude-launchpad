@@ -1,0 +1,4 @@
+---
+# Docker users (admin user gets docker permissions)
+docker_users:
+  - "{{ admin_user }}"

@@ -1,0 +1,80 @@
+# Inventory files (generated dynamically)
+inventories/hosts.ini
+
+# Host variables (except example)
+inventories/host_vars/*.yml
+!inventories/host_vars/example.com.yml
+
+# Ansible temporary files
+.ansible/
+*.retry
+
+# SSH known hosts and keys
+.ssh/
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+id_ecdsa*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.vim/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Backup files
+*.bak
+*.backup
+
+# Local configuration
+.env
+.local
+config.local.yml

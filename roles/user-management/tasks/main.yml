@@ -1,0 +1,34 @@
+---
+- name: Create admin user
+  ansible.builtin.user:
+    name: "{{ admin_user }}"
+    groups: sudo,docker
+    shell: /bin/bash
+    create_home: true
+    state: present
+  tags: ['user-management']
+
+- name: Set up SSH directory for admin user
+  ansible.builtin.file:
+    path: "/home/{{ admin_user }}/.ssh"
+    state: directory
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+    mode: '0700'
+  tags: ['user-management']
+
+- name: Add SSH public key for admin user
+  ansible.posix.authorized_key:
+    user: "{{ admin_user }}"
+    key: "{{ admin_ssh_key }}"
+    state: present
+  tags: ['user-management']
+
+- name: Configure passwordless sudo for admin user
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers.d/{{ admin_user }}
+    line: "{{ admin_user }} ALL=(ALL) NOPASSWD:ALL"
+    create: true
+    validate: 'visudo -cf %s'
+    mode: '0440'
+  tags: ['user-management']

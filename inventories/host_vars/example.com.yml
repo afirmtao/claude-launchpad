@@ -1,0 +1,21 @@
+---
+# Server connection details
+ansible_host: 192.168.1.100
+ansible_host_ipv6: "2001:db8::1"
+
+# Server configuration
+fqdn: example.com
+server_timezone: Europe/Berlin
+
+# Firewall configuration
+firewall_allowed_ports:
+  - port: "22"
+    proto: "tcp"
+  - port: "80"
+    proto: "tcp"
+  - port: "443"
+    proto: "tcp"
+
+# Admin user configuration
+admin_user: admin
+admin_ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC... your-ssh-key-here"

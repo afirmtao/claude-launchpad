@@ -1,0 +1,13 @@
+---
+warn_list:
+  - yaml[line-length]
+  - name[casing]
+
+skip_list:
+  - yaml[comments]
+
+exclude_paths:
+  - .cache/
+  - .github/
+  - molecule/
+  - .ansible-lint

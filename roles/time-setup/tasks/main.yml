@@ -1,0 +1,26 @@
+---
+- name: Set timezone
+  community.general.timezone:
+    name: "{{ server_timezone | default('Europe/Berlin') }}"
+  tags: ['time-setup']
+
+- name: Install NTP package
+  ansible.builtin.apt:
+    name: ntp
+    state: present
+    update_cache: true
+  tags: ['time-setup']
+
+- name: Enable and start NTP service
+  ansible.builtin.systemd:
+    name: ntp
+    enabled: true
+    state: started
+  tags: ['time-setup']
+
+- name: Ensure NTP is running and enabled
+  ansible.builtin.service:
+    name: ntp
+    state: started
+    enabled: true
+  tags: ['time-setup']

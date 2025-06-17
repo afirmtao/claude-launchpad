@@ -1,0 +1,10 @@
+---
+# Default swappiness value (0-100)
+# 20 is optimal for most VPS servers
+# Lower values (1-10) for SSD-based systems
+# Higher values (30-40) for systems with limited RAM
+swap_swappiness: 20
+
+# VFS cache pressure value (default 100, recommended 50)
+# Controls kernel tendency to reclaim inode/directory cache
+swap_vfs_cache_pressure: 50

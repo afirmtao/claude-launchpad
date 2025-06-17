@@ -1,0 +1,20 @@
+---
+- name: Provision Debian 12 VPS
+  hosts: all
+  become: true
+  gather_facts: true
+
+  roles:
+    - system-update
+    - user-management
+    - swap-setup
+    - time-setup
+    - security-hardening
+    - docker-setup
+
+  post_tasks:
+    - name: Reboot if required
+      ansible.builtin.reboot:
+        reboot_timeout: 300
+      when: reboot_required is defined and reboot_required
+      tags: ['setup']

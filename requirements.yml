@@ -1,0 +1,9 @@
+---
+roles:
+  - name: geerlingguy.security
+    src: geerlingguy.security
+  - name: geerlingguy.docker
+    src: geerlingguy.docker
+
+collections:
+  - name: devsec.hardening
