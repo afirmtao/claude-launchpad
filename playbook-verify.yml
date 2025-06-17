@@ -171,7 +171,7 @@
 
     - name: Check Caddy configuration directory
       ansible.builtin.stat:
-        path: "{{ ansible_user_dir }}/caddy"
+        path: "/home/{{ admin_user }}/caddy"
       register: caddy_dir_check
 
     - name: Evaluate Caddy directory
@@ -181,9 +181,10 @@
 
     - name: Check Caddy server response
       ansible.builtin.uri:
-        url: "http://{{ inventory_hostname }}"
-        follow_redirects: all
+        url: "https://{{ inventory_hostname }}"
+        validate_certs: false
         timeout: 10
+        return_content: true
       register: caddy_response_check
       failed_when: false
       delegate_to: localhost
