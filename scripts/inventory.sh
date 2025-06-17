@@ -2,17 +2,14 @@
 
 set -euo pipefail
 
-FQDN="$1"
+# Source common functions
+source "$(dirname "$0")/common.sh"
 
-if [ -z "$FQDN" ]; then
-	echo "Usage: $0 <FQDN>"
-	exit 1
-fi
+FQDN="${1:-}"
 
-INVENTORY_DIR="inventories"
-HOSTS_INI="$INVENTORY_DIR/hosts.ini"
-HOST_VARS_DIR="$INVENTORY_DIR/host_vars"
-HOST_VARS_FILE="$HOST_VARS_DIR/$FQDN.yml"
+validate_fqdn "$FQDN"
+
+HOST_VARS_FILE=$(get_host_vars_file "$FQDN")
 EXAMPLE_HOST_VARS="$HOST_VARS_DIR/example.com.yml"
 
 if [ -f "$HOST_VARS_FILE" ]; then
@@ -76,9 +73,7 @@ else
 fi
 
 # Create hosts.ini if it doesn't exist
-if [ ! -f "$HOSTS_INI" ]; then
-	echo "# Dynamic inventory - managed by scripts" >"$HOSTS_INI"
-fi
+ensure_hosts_ini
 
 # Remove example.com from hosts.ini if it exists
 sed -i '/^example\.com$/d' "$HOSTS_INI" 2>/dev/null || true

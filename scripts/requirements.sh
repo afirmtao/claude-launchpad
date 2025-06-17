@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+# Source common functions
+source "$(dirname "$0")/common.sh"
+
 echo "Installing Ansible requirements..."
 
 # Install roles to user directory

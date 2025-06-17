@@ -2,13 +2,16 @@
 
 set -euo pipefail
 
+# Source common functions
+source "$(dirname "$0")/common.sh"
+
 echo "Formatting shell scripts..."
 
-if command -v shfmt >/dev/null 2>&1; then
+execute_if_available shfmt "skipping shell script formatting" \
 	find scripts/ -name "*.sh" -exec shfmt -w {} \;
+
+if command_exists shfmt; then
 	echo "Shell scripts formatted successfully"
-else
-	echo "Warning: shfmt not found, skipping shell script formatting"
 fi
 
 echo "Formatting complete"

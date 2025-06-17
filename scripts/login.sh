@@ -5,14 +5,9 @@ set -euo pipefail
 # Source common functions
 source "$(dirname "$0")/common.sh"
 
-FQDN="$1"
+FQDN="${1:-}"
 
-if [ -z "$FQDN" ]; then
-	echo "Usage: $0 <FQDN>"
-	exit 1
-fi
-
-# Get host information
+validate_fqdn "$FQDN"
 get_host_info "$FQDN"
 
 echo "Connecting to $ADMIN_USER@$IPV4..."
