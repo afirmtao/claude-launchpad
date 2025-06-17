@@ -2,253 +2,117 @@
 - name: Verify server configuration
   hosts: all
   gather_facts: true
-  vars:
-    failed_checks: 0
-    check_results: []
+
   pre_tasks:
     - name: Display verification header
       ansible.builtin.debug:
         msg: "Verifying server setup for {{ inventory_hostname }}..."
 
   tasks:
-    - name: Check admin user sudo access
+    - name: Verify admin user sudo access
       ansible.builtin.command: sudo -n true
-      register: sudo_check
-      failed_when: false
       changed_when: false
 
-    - name: Evaluate sudo check
-      ansible.builtin.set_fact:
-        failed_checks: "{{ failed_checks | int + (1 if sudo_check.rc != 0 else 0) }}"
-        check_results: >-
-          {{ check_results + [{
-            'name': 'Admin user sudo access',
-            'status': 'PASS' if sudo_check.rc == 0 else 'FAIL',
-            'details': 'Admin user does not have passwordless sudo' if sudo_check.rc != 0 else ''
-          }] }}
-
-    - name: Check swap configuration
+    - name: Verify swap configuration
       ansible.builtin.shell:
-        cmd: set -o pipefail && free -m | grep Swap || echo ""
+        cmd: set -o pipefail && free -m | grep Swap
         executable: /bin/bash
       register: swap_info
       changed_when: false
 
-    - name: Evaluate swap configuration
-      ansible.builtin.set_fact:
-        swap_total: "{{ swap_info.stdout | regex_search('Swap:\\s+(\\d+)', '\\1') | first | default('0') | int }}"
-      when: swap_info.stdout != ""
-
-    - name: Set swap check result
-      ansible.builtin.set_fact:
-        failed_checks: "{{ failed_checks | int + (1 if (swap_total | default(0) | int) == 0 else 0) }}"
-        check_results: >-
-          {{ check_results + [{
-            'name': 'Swap configuration',
-            'status': 'PASS' if (swap_total | default(0) | int) > 0 else 'FAIL',
-            'details': (swap_total | default(0)) + 'MB' if (swap_total | default(0) | int) > 0
-                       else 'Could not retrieve swap information'
-          }] }}
-
-    - name: Check swappiness value
+    - name: Verify swappiness value
       ansible.builtin.slurp:
         src: /proc/sys/vm/swappiness
       register: swappiness_check
 
-    - name: Evaluate swappiness
-      ansible.builtin.set_fact:
-        swappiness_value: "{{ swappiness_check.content | b64decode | trim | int }}"
-        check_results: "{{ check_results + [{'name': 'Swappiness value', 'status': 'PASS' if (swappiness_check.content | b64decode | trim | int) == 20 else 'WARN', 'details': (swappiness_check.content | b64decode | trim) + (' (expected 20)' if (swappiness_check.content | b64decode | trim | int) != 20 else '')}] }}"
+    - name: Check swappiness is optimal
+      ansible.builtin.fail:
+        msg: "Swappiness is {{ swappiness_check.content | b64decode | trim }}, expected 20"
+      when: (swappiness_check.content | b64decode | trim | int) != 20
 
-    - name: Check SSH key authentication
-      ansible.builtin.set_fact:
-        check_results: "{{ check_results + [{'name': 'SSH key authentication', 'status': 'PASS', 'details': ''}] }}"
-
-    - name: Check timezone configuration
+    - name: Verify timezone configuration
       ansible.builtin.command: timedatectl show --property=Timezone --value
       register: timezone_check
       changed_when: false
+      failed_when: timezone_check.stdout == ''
 
-    - name: Evaluate timezone
-      ansible.builtin.set_fact:
-        failed_checks: "{{ failed_checks | int + (1 if timezone_check.stdout == '' else 0) }}"
-        check_results: "{{ check_results + [{'name': 'Timezone configuration', 'status': 'PASS' if timezone_check.stdout != '' else 'FAIL', 'details': timezone_check.stdout if timezone_check.stdout != '' else 'Could not retrieve timezone information'}] }}"
-
-    - name: Check NTP synchronization
+    - name: Verify NTP synchronization
       ansible.builtin.command: timedatectl show --property=NTPSynchronized --value
       register: ntp_check
       changed_when: false
+      failed_when: ntp_check.stdout != 'yes'
 
-    - name: Evaluate NTP sync
-      ansible.builtin.set_fact:
-        check_results: "{{ check_results + [{'name': 'NTP synchronization', 'status': 'PASS' if ntp_check.stdout == 'yes' else 'WARN', 'details': '' if ntp_check.stdout == 'yes' else 'NTP not synchronized yet'}] }}"
-
-    - name: Check UFW firewall status
+    - name: Verify UFW firewall status
       ansible.builtin.command: ufw status
       register: ufw_check
       changed_when: false
       become: true
+      failed_when: "'Status: active' not in ufw_check.stdout"
 
-    - name: Evaluate UFW status
-      ansible.builtin.set_fact:
-        ufw_active: "{{ 'Status: active' in ufw_check.stdout }}"
-        failed_checks: "{{ failed_checks | int + (1 if 'Status: active' not in ufw_check.stdout else 0) }}"
-        check_results: "{{ check_results + [{'name': 'UFW firewall status', 'status': 'PASS' if 'Status: active' in ufw_check.stdout else 'FAIL', 'details': '' if 'Status: active' in ufw_check.stdout else 'UFW firewall is not active'}] }}"
-
-    - name: Check root SSH login disabled
+    - name: Verify root SSH login disabled
       ansible.builtin.command: ssh -o ConnectTimeout=5 -o BatchMode=yes root@{{ ansible_default_ipv4.address }} exit
       register: root_ssh_check
-      failed_when: false
+      failed_when: root_ssh_check.rc == 0
       changed_when: false
       delegate_to: localhost
 
-    - name: Evaluate root SSH
-      ansible.builtin.set_fact:
-        failed_checks: "{{ failed_checks | int + (1 if root_ssh_check.rc == 0 else 0) }}"
-        check_results: "{{ check_results + [{'name': 'Root SSH login disabled', 'status': 'FAIL' if root_ssh_check.rc == 0 else 'PASS', 'details': 'Root SSH login is still enabled' if root_ssh_check.rc == 0 else ''}] }}"
-
-    - name: Check /tmp directory writable
+    - name: Verify /tmp directory writable
       ansible.builtin.file:
         path: /tmp/test_write
         state: touch
         mode: '0644'
-      register: tmp_write_check
-      failed_when: false
 
     - name: Clean up test file
       ansible.builtin.file:
         path: /tmp/test_write
         state: absent
-      when: tmp_write_check is succeeded
 
-    - name: Evaluate /tmp writable
-      ansible.builtin.set_fact:
-        failed_checks: "{{ failed_checks | int + (1 if tmp_write_check is failed else 0) }}"
-        check_results: "{{ check_results + [{'name': '/tmp directory writable', 'status': 'PASS' if tmp_write_check is succeeded else 'FAIL', 'details': '' if tmp_write_check is succeeded else '/tmp directory is not writable'}] }}"
-
-    - name: Check Docker installation
+    - name: Verify Docker installation
       ansible.builtin.command: docker --version
-      register: docker_version_check
-      failed_when: false
       changed_when: false
 
-    - name: Evaluate Docker installation
-      ansible.builtin.set_fact:
-        failed_checks: "{{ failed_checks | int + (1 if docker_version_check.rc != 0 else 0) }}"
-        check_results: "{{ check_results + [{'name': 'Docker installation', 'status': 'PASS' if docker_version_check.rc == 0 else 'FAIL', 'details': docker_version_check.stdout if docker_version_check.rc == 0 else 'Docker is not installed'}] }}"
-
-    - name: Check admin user Docker permissions
+    - name: Verify admin user Docker permissions
       ansible.builtin.command: docker info
-      register: docker_permission_check
-      failed_when: false
       changed_when: false
 
-    - name: Evaluate Docker permissions
-      ansible.builtin.set_fact:
-        failed_checks: "{{ failed_checks | int + (1 if docker_permission_check.rc != 0 else 0) }}"
-        check_results: "{{ check_results + [{'name': 'Admin user Docker permissions', 'status': 'PASS' if docker_permission_check.rc == 0 else 'FAIL', 'details': '' if docker_permission_check.rc == 0 else 'Admin user cannot run Docker without sudo'}] }}"
-
-    - name: Check Caddy installation
+    - name: Verify Caddy installation
       ansible.builtin.command: caddy version
-      register: caddy_version_check
-      failed_when: false
       changed_when: false
 
-    - name: Evaluate Caddy installation
-      ansible.builtin.set_fact:
-        failed_checks: "{{ failed_checks | int + (1 if caddy_version_check.rc != 0 else 0) }}"
-        check_results: "{{ check_results + [{'name': 'Caddy installation', 'status': 'PASS' if caddy_version_check.rc == 0 else 'FAIL', 'details': caddy_version_check.stdout if caddy_version_check.rc == 0 else 'Caddy is not installed'}] }}"
-
-    - name: Check Caddy service status
+    - name: Verify Caddy service status
       ansible.builtin.systemd:
         name: caddy
       register: caddy_service_check
+      failed_when: caddy_service_check.status.ActiveState != 'active'
 
-    - name: Evaluate Caddy service
-      ansible.builtin.set_fact:
-        failed_checks: "{{ failed_checks | int + (1 if caddy_service_check.status.ActiveState != 'active' else 0) }}"
-        check_results: "{{ check_results + [{'name': 'Caddy service status', 'status': 'PASS' if caddy_service_check.status.ActiveState == 'active' else 'FAIL', 'details': '' if caddy_service_check.status.ActiveState == 'active' else 'Caddy service is not running'}] }}"
-
-    - name: Check Caddy configuration directory
+    - name: Verify Caddy configuration directory exists
       ansible.builtin.stat:
         path: "/home/{{ admin_user }}/caddy"
       register: caddy_dir_check
+      failed_when: not caddy_dir_check.stat.exists
 
-    - name: Evaluate Caddy directory
-      ansible.builtin.set_fact:
-        failed_checks: "{{ failed_checks | int + (1 if not caddy_dir_check.stat.exists else 0) }}"
-        check_results: "{{ check_results + [{'name': 'Caddy configuration directory', 'status': 'PASS' if caddy_dir_check.stat.exists else 'FAIL', 'details': '' if caddy_dir_check.stat.exists else 'Caddy configuration directory does not exist'}] }}"
-
-    - name: Check Caddy server response
+    - name: Verify Caddy server response
       ansible.builtin.uri:
         url: "https://{{ inventory_hostname }}"
         validate_certs: false
         timeout: 10
         return_content: true
       register: caddy_response_check
-      failed_when: false
       delegate_to: localhost
+      failed_when: "'Hello from ' + inventory_hostname not in caddy_response_check.content"
 
-    - name: Evaluate Caddy response
-      ansible.builtin.set_fact:
-        caddy_content_ok: "{{ 'Hello from ' + inventory_hostname in (caddy_response_check.content | default('')) }}"
-        failed_checks: "{{ failed_checks | int + (1 if 'Hello from ' + inventory_hostname not in (caddy_response_check.content | default('')) else 0) }}"
-        check_results: "{{ check_results + [{'name': 'Caddy server response', 'status': 'PASS' if 'Hello from ' + inventory_hostname in (caddy_response_check.content | default('')) else 'FAIL', 'details': '' if 'Hello from ' + inventory_hostname in (caddy_response_check.content | default('')) else 'Server did not return expected content. Response: ' + (caddy_response_check.content | default(''))}] }}"
-
-    - name: Check HTTPS redirect
+    - name: Verify HTTPS redirect working
       ansible.builtin.uri:
         url: "https://{{ inventory_hostname }}"
         timeout: 10
-      register: https_response_check
-      failed_when: false
       delegate_to: localhost
 
-    - name: Evaluate HTTPS
-      ansible.builtin.set_fact:
-        check_results: "{{ check_results + [{'name': 'HTTPS redirect', 'status': 'PASS' if https_response_check.status == 200 else 'WARN', 'details': '' if https_response_check.status == 200 else 'HTTPS may not be ready yet - certificate provisioning can take time'}] }}"
-
-    - name: Check base container running
+    - name: Verify base container running
       ansible.builtin.command: docker ps --filter "name=base" --format "table {{ '{{.Names}}' }}\t{{ '{{.Status}}' }}"
       register: base_container_check
-      failed_when: false
       changed_when: false
+      failed_when: "'base' not in base_container_check.stdout or 'Up' not in base_container_check.stdout"
 
-    - name: Evaluate base container
-      ansible.builtin.set_fact:
-        base_container_running: "{{ 'base' in base_container_check.stdout and 'Up' in base_container_check.stdout }}"
-        failed_checks: "{{ failed_checks | int + (1 if not ('base' in base_container_check.stdout and 'Up' in base_container_check.stdout) else 0) }}"
-        check_results: "{{ check_results + [{'name': 'Base container running', 'status': 'PASS' if ('base' in base_container_check.stdout and 'Up' in base_container_check.stdout) else 'FAIL', 'details': '' if ('base' in base_container_check.stdout and 'Up' in base_container_check.stdout) else 'Base container is not running'}] }}"
-
-    - name: Check claude-code in base container
-      ansible.builtin.command: docker exec base ~/.npm/global/bin/claude --version
-      register: claude_version_check
-      failed_when: false
+    - name: Verify claude-code in base container
+      ansible.builtin.command: docker exec base /home/admin/.npm/global/bin/claude --version
       changed_when: false
-      when: base_container_running | default(false)
-
-    - name: Evaluate claude-code installation
-      ansible.builtin.set_fact:
-        failed_checks: "{{ failed_checks | int + (1 if not base_container_running or claude_version_check.rc != 0 else 0) }}"
-        check_results: "{{ check_results + [{'name': 'Claude-code in base container', 'status': 'PASS' if base_container_running and claude_version_check.rc == 0 else 'FAIL', 'details': claude_version_check.stdout if base_container_running and claude_version_check.rc == 0 else 'Claude-code not available in base container'}] }}"
-
-    - name: Display each check result
-      ansible.builtin.debug:
-        msg: "Checking {{ item.name }}... {{ item.status }}{% if item.details %} ({{ item.details }}){% endif %}"
-      loop: "{{ check_results }}"
-      loop_control:
-        label: "{{ item.name }}"
-
-    - name: Display blank line
-      ansible.builtin.debug:
-        msg: ""
-
-    - name: Display verification summary
-      ansible.builtin.debug:
-        msg: |
-          Verification Summary:
-          {% if failed_checks | int == 0 %}All critical checks passed! Server is properly configured.{% else %}{{ failed_checks }} critical checks failed. Server needs attention.{% endif %}
-
-    - name: Fail if critical checks failed
-      ansible.builtin.fail:
-        msg: "{{ failed_checks }} critical checks failed"
-      when: failed_checks | int > 0
