@@ -116,3 +116,15 @@
     - name: Verify claude-code in base container
       ansible.builtin.command: docker exec base /home/admin/.npm/global/bin/claude --version
       changed_when: false
+
+    - name: Verify Docker access in base container
+      ansible.builtin.command: docker exec base docker ps
+      changed_when: false
+
+    - name: Verify Docker Compose in base container
+      ansible.builtin.command: docker exec base docker-compose --version
+      changed_when: false
+
+    - name: Verify Docker Buildx in base container
+      ansible.builtin.command: docker exec base docker buildx version
+      changed_when: false

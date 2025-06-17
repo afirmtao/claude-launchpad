@@ -2,16 +2,19 @@ FROM archlinux:latest
 
 # Update system and install base packages
 RUN pacman -Syu --noconfirm && \
-    pacman -S --noconfirm base-devel nodejs npm sudo && \
+    pacman -S --noconfirm base-devel nodejs npm sudo docker docker-compose docker-buildx && \
     pacman -Scc --noconfirm
 
-# Create non-root user matching host admin user
-RUN useradd -m -G wheel -s /bin/bash {{ admin_user }} && \
+# Create non-root user and add to docker group
+RUN useradd -m -G wheel,docker -s /bin/bash {{ admin_user }} && \
     echo "{{ admin_user }} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # Switch to non-root user
 USER {{ admin_user }}
 WORKDIR /home/{{ admin_user }}
+
+# Setup Docker Buildx
+RUN mkdir -p ~/.docker/cli-plugins
 
 # Configure npm and install claude-code
 RUN mkdir -p ~/.npm/global && \

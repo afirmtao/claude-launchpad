@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: base
     hostname: base
+    user: "1000:996"
     volumes:
       # Mount home directory
       - /home/{{ admin_user }}:/home/{{ admin_user }}
