@@ -128,3 +128,7 @@
     - name: Verify Docker Buildx in base container
       ansible.builtin.command: docker exec base docker buildx version
       changed_when: false
+
+    - name: Verify Zellij installation in base container
+      ansible.builtin.command: docker exec base zellij --version
+      changed_when: false

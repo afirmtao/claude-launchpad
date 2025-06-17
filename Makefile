@@ -25,4 +25,4 @@ login: ## SSH login to server (usage: make login FQDN=domain.com)
 	@./scripts/login.sh $(FQDN)
 
 login-base: ## Login to base container (usage: make login-base FQDN=domain.com)
-	@./scripts/login.sh $(FQDN) "docker exec -it base bash"
+	@./scripts/login.sh $(FQDN) "docker exec -it base zellij attach --create default"

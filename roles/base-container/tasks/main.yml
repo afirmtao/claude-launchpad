@@ -40,3 +40,27 @@
   become: true
   become_user: "{{ admin_user }}"
   tags: ['base-container']
+
+- name: Create Zellij config directory
+  ansible.builtin.file:
+    path: "/home/{{ admin_user }}/.config/zellij"
+    state: directory
+    mode: '0755'
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  become: true
+  become_user: "{{ admin_user }}"
+  tags: ['base-container']
+
+- name: Create Zellij configuration
+  ansible.builtin.copy:
+    content: |
+      theme "dracula"
+      default_shell "bash"
+    dest: "/home/{{ admin_user }}/.config/zellij/config.kdl"
+    mode: '0644'
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  become: true
+  become_user: "{{ admin_user }}"
+  tags: ['base-container']
