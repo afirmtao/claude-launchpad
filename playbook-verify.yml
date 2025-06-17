@@ -30,6 +30,7 @@
     - name: Check swap configuration
       ansible.builtin.shell:
         cmd: set -o pipefail && free -m | grep Swap || echo ""
+        executable: /bin/bash
       register: swap_info
       changed_when: false
 
