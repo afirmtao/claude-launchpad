@@ -14,4 +14,13 @@ if command_exists shfmt; then
 	echo "Shell scripts formatted successfully"
 fi
 
+echo "Formatting markdown files..."
+
+execute_if_available mdformat "skipping markdown formatting" \
+	mdformat .
+
+if command_exists mdformat; then
+	echo "Markdown files formatted successfully"
+fi
+
 echo "Formatting complete"
