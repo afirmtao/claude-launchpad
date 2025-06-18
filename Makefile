@@ -1,4 +1,4 @@
-.PHONY: help provision login lint format
+.PHONY: help provision login lint format mount unmount
 
 help: ## Show this help message
 	@echo 'Usage: make [target]'
@@ -26,3 +26,9 @@ login: ## SSH login to server (usage: make login FQDN=domain.com)
 
 login-base: ## Login to base container (usage: make login-base FQDN=domain.com)
 	@./scripts/login.sh $(FQDN) "docker exec -it base zellij attach --create default"
+
+mount: ## Mount server stacks directory locally (usage: make mount FQDN=domain.com)
+	@./scripts/mount.sh $(FQDN) mount
+
+unmount: ## Unmount server stacks directory (usage: make unmount FQDN=domain.com)
+	@./scripts/mount.sh $(FQDN) unmount

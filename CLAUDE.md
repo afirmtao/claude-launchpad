@@ -125,6 +125,8 @@ scripts/                # helper scripts
 - `make verify FQDN=domain.com` - Verify server configuration
 - `make login FQDN=domain.com` - SSH into server as admin user
 - `make login-base FQDN=domain.com` - Login to base development container
+- `make mount FQDN=domain.com` - Mount server's ~/stacks directory to ~/mnt/domain.com-stacks
+- `make unmount FQDN=domain.com` - Unmount server's stacks directory
 - `make requirements` - Install Ansible requirements
 - `make lint` - Lint YAML files
 - `make format` - Format YAML and shell scripts
