@@ -114,7 +114,7 @@
       failed_when: "'base' not in base_container_check.stdout or 'Up' not in base_container_check.stdout"
 
     - name: Verify claude-code in base container
-      ansible.builtin.command: docker exec base /home/admin/.npm/global/bin/claude --version
+      ansible.builtin.command: docker exec base /home/admin/.npm-global/bin/claude --version
       changed_when: false
 
     - name: Verify Docker access in base container

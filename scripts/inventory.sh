@@ -83,4 +83,12 @@ if ! grep -q "^$FQDN$" "$HOSTS_INI" 2>/dev/null; then
 	echo "Added $FQDN to hosts.ini"
 fi
 
+# Remove domain and IP from SSH known_hosts to prevent conflicts
+echo "Cleaning SSH known_hosts for $FQDN and $IPV4..."
+ssh-keygen -R "$FQDN" 2>/dev/null || true
+ssh-keygen -R "$IPV4" 2>/dev/null || true
+if [ -n "$IPV6" ]; then
+	ssh-keygen -R "$IPV6" 2>/dev/null || true
+fi
+
 echo "Inventory created successfully at $HOST_VARS_FILE"

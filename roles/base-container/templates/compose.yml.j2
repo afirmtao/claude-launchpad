@@ -10,8 +10,14 @@ services:
     # This mapping ensures Docker socket permissions work correctly
     user: "1000:996"
     volumes:
-      # Mount home directory
-      - /home/{{ admin_user }}:/home/{{ admin_user }}
+      # Mount base directory as home directory
+      - /home/{{ admin_user }}/base:/home/{{ admin_user }}
+      # Mount stacks directory 
+      - /home/{{ admin_user }}/stacks:/home/{{ admin_user }}/stacks
+      # Mount caddy directory
+      - /home/{{ admin_user }}/caddy:/home/{{ admin_user }}/caddy
+      # Mount claude settings and cache directory
+      - /home/{{ admin_user }}/.claude:/home/{{ admin_user }}/.claude
       # Mount Docker socket for Docker-in-Docker
       - /var/run/docker.sock:/var/run/docker.sock
     stdin_open: true

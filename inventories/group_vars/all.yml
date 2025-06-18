@@ -1,2 +1,5 @@
 ---
 # Default variables for all hosts
+
+# Explicitly set Python interpreter to avoid discovery warnings
+ansible_python_interpreter: /usr/bin/python3

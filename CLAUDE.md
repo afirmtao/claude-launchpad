@@ -99,11 +99,19 @@ scripts/                # helper scripts
 - Docker tools (docker, docker-compose, docker-buildx) with host socket access
 - Environment configuration:
   - Fish shell with Dracula theme and no welcome message
-  - Proper PATH configuration for Go (~/.go/bin), Rust (~/.cargo/bin), and npm (~/.npm/global/bin)
+  - Proper PATH configuration for Go (~/.go/bin), Rust (~/.cargo/bin), and npm (~/.npm-global/bin)
   - Configuration files stored in roles/base-container/files/.config/
-- Claude-code CLI tool pre-installed via npm global installation
+- Claude Code CLI tool pre-installed via npm global installation:
+  - Installed to `~/.npm-global/bin/claude` for user-only access
+  - Supports auto-updates via `claude update` without requiring system permissions
+  - Configuration and cache persist in `~/.claude/` between container rebuilds
+  - Settings stored in `~/.claude/settings.json` and user memory in `~/.claude/CLAUDE.md`
 - Zellij terminal multiplexer with Dracula theme using fish as default shell
-- Home directory and Docker socket mounted from host for seamless development
+- Persistent volume mounts for seamless development:
+  - `~/base` → container home directory (preserves npm packages, shell config, and user files)
+  - `~/stacks` → container `~/stacks` (project files and development work)
+  - `~/caddy` → container `~/caddy` (web server configuration)
+  - `~/.claude` → container `~/.claude` (Claude Code settings, credentials, and cache)
 - User/group mapping (1000:996) for proper Docker socket permissions (admin user : docker group)
 - Container accessible via `make login-base FQDN=domain.com`
 
