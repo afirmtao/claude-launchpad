@@ -128,11 +128,15 @@ admin_ssh_key: "ssh-ed25519 AAAAC3... your-key-here"
 
 ### Development Container
 
-- Arch Linux base with development tools (base-devel, nodejs, npm)
+- Arch Linux base with development tools (base-devel, nodejs, npm, git, htop)
+- Modern development languages (deno, fish, go, rust) with proper PATH configuration
 - Docker tools (docker, docker-compose, docker-buildx) with host socket access
-- Claude-code CLI tool pre-installed
-- Zellij terminal multiplexer with Dracula theme and session persistence
-- Home directory and Docker socket mounted from host
+- Package manager tools (pacman, yay AUR helper) for additional software
+- Claude-code CLI tool pre-installed globally via npm
+- Zellij terminal multiplexer with Dracula theme using fish shell
+- Fish shell with Dracula theme, no welcome message, and development paths
+- Home directory and Docker socket mounted from host for seamless development
+- User/group mapping (1000:996) for proper Docker socket permissions
 
 ## Verification Checks
 

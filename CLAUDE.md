@@ -92,12 +92,19 @@ scripts/                # helper scripts
 
 ## Base Container Setup
 
-- Arch Linux container with development tools (base-devel, nodejs, npm)
+- Arch Linux container with comprehensive development tools:
+  - Base development: base-devel, git, htop
+  - Languages & runtimes: nodejs, npm, deno, fish, go, rust
+  - Package managers: pacman (system), yay (AUR helper)
 - Docker tools (docker, docker-compose, docker-buildx) with host socket access
+- Environment configuration:
+  - Fish shell with Dracula theme and no welcome message
+  - Proper PATH configuration for Go (~/.go/bin), Rust (~/.cargo/bin), and npm (~/.npm/global/bin)
+  - Configuration files stored in roles/base-container/files/.config/
 - Claude-code CLI tool pre-installed via npm global installation
-- Zellij terminal multiplexer with Dracula theme and session persistence
+- Zellij terminal multiplexer with Dracula theme using fish as default shell
 - Home directory and Docker socket mounted from host for seamless development
-- User/group mapping (1000:996) for proper Docker socket permissions
+- User/group mapping (1000:996) for proper Docker socket permissions (admin user : docker group)
 - Container accessible via `make login-base FQDN=domain.com`
 
 ## Roles Overview

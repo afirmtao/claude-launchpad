@@ -2,7 +2,21 @@ FROM archlinux:latest
 
 # Update system and install base packages
 RUN pacman -Syu --noconfirm && \
-    pacman -S --noconfirm base-devel nodejs npm sudo docker docker-compose docker-buildx zellij && \
+    pacman -S --noconfirm \
+        base-devel \
+        nodejs \
+        npm \
+        sudo \
+        docker \
+        docker-compose \
+        docker-buildx \
+        zellij \
+        deno \
+        fish \
+        go \
+        rust \
+        git \
+        htop && \
     pacman -Scc --noconfirm
 
 # Create non-root user and add to docker group
@@ -16,19 +30,21 @@ WORKDIR /home/{{ admin_user }}
 # Setup Docker Buildx
 RUN mkdir -p ~/.docker/cli-plugins
 
-# Configure Zellij with Dracula theme
-RUN mkdir -p ~/.config/zellij && \
-    echo 'theme "dracula"' > ~/.config/zellij/config.kdl && \
-    echo 'default_shell "bash"' >> ~/.config/zellij/config.kdl
+# Install yay AUR helper
+RUN git clone https://aur.archlinux.org/yay.git /tmp/yay && \
+    cd /tmp/yay && \
+    makepkg -si --noconfirm && \
+    cd && \
+    rm -rf /tmp/yay
 
 # Configure npm and install claude-code
 RUN mkdir -p ~/.npm/global && \
     npm config set prefix ~/.npm/global && \
-    echo 'export PATH=~/.npm/global/bin:$PATH' >> ~/.bashrc && \
+    echo 'export PATH=~/.npm/global/bin:~/.cargo/bin:~/go/bin:$PATH' >> ~/.bashrc && \
     npm install -g @anthropic-ai/claude-code
 
 # Set environment variables
-ENV PATH="/home/{{ admin_user }}/.npm/global/bin:$PATH"
+ENV PATH="$PATH:/home/{{ admin_user }}/.npm/global/bin:/home/{{ admin_user }}/.cargo/bin:/home/{{ admin_user }}/go/bin"
 
 # Keep container running
-CMD ["/bin/bash", "-l"]
+CMD ["tail", "-f", "/dev/null"]
