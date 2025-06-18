@@ -18,18 +18,19 @@ A live development tool for provisioning Debian 12 VPS servers with Docker and d
    make requirements
    ```
 
-1. **Configure server**
-
-   - Copy `inventories/host_vars/example.com.yml` to your server's FQDN
-   - Update server details and SSH key
-
-1. **Provision server**
+2. **Provision server**
 
    ```bash
    make provision FQDN=your-server.com
    ```
 
-1. **Access development container**
+   The script will prompt you for:
+   - SSH public key (defaults to ~/.ssh/id_rsa.pub)
+   - IPv4 address (auto-resolved from DNS if empty)
+   - IPv6 address (auto-resolved from DNS if empty)
+   - Admin username (defaults to "admin")
+
+3. **Access development container**
 
    ```bash
    make login-base FQDN=your-server.com
