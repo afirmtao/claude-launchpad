@@ -34,3 +34,34 @@
         format json
     }
 }
+
+# Metrics subdomain for Grafana
+metrics.{{ caddy_fqdn }} {
+    reverse_proxy localhost:3000
+    
+    # Security headers
+    header {
+        # Enable HSTS
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        # Prevent MIME type sniffing
+        X-Content-Type-Options "nosniff"
+        # Prevent clickjacking
+        X-Frame-Options "SAMEORIGIN"
+        # XSS protection
+        X-XSS-Protection "1; mode=block"
+        # Referrer policy
+        Referrer-Policy "strict-origin-when-cross-origin"
+        # Remove server header
+        -Server
+    }
+    
+    # Logging
+    log {
+        output file {{ caddy_user_home }}/caddy/logs/metrics.{{ caddy_fqdn }}.log {
+            roll_size 100mb
+            roll_keep 5
+            roll_keep_for 720h
+        }
+        format json
+    }
+}

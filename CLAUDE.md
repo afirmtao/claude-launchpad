@@ -20,6 +20,7 @@ roles/
    docker-setup/         # Docker installation
    caddy-setup/          # Caddy web server
    base-container/       # Development container
+   metrics-container/    # Monitoring stack
        tasks/
            main.yml      # main tasks file
        handlers/         # event handlers (optional)
@@ -89,6 +90,7 @@ scripts/                # helper scripts
 - Email for certificate notifications configurable via `caddy_email` variable
 - Automatic configuration reload when `~/caddy/Caddyfile` changes via systemd path units
 - Admin API enabled on localhost:2019 for zero-downtime configuration updates
+- Metrics subdomain (metrics.{fqdn}) configured with reverse proxy to Grafana on port 3000
 
 ## Base Container Setup
 
@@ -115,6 +117,22 @@ scripts/                # helper scripts
 - User/group mapping (1000:996) for proper Docker socket permissions (admin user : docker group)
 - Container accessible via `make login-base FQDN=domain.com`
 
+## Metrics Container Setup
+
+- Comprehensive monitoring stack using Docker Compose:
+  - **Grafana**: Web-based analytics and monitoring platform on port 3000
+  - **Prometheus**: Time-series database for metrics collection on port 9090
+  - **Node Exporter**: System and hardware metrics on port 9100
+  - **cAdvisor**: Container resource usage and performance metrics on port 8080
+- Grafana configuration:
+  - Admin credentials configurable via `grafana_admin_user` and `grafana_admin_password` variables
+  - Pre-configured Prometheus data source
+  - Dashboard provisioning for Node Exporter and cAdvisor metrics
+  - Persistent data storage via Docker volumes
+- Network isolation via dedicated monitoring network
+- Accessible via HTTPS at `https://metrics.{fqdn}` through Caddy reverse proxy
+- Automatic startup and restart policies for all services
+
 ## Roles Overview
 
 - **system-update**: Updates system packages and checks for reboot requirements
@@ -126,6 +144,7 @@ scripts/                # helper scripts
 - **caddy-setup**: Installs Caddy web server with automatic HTTPS, security headers, and structured logging
 - **caddy-auto-reload**: Configures automatic Caddy configuration reload on file changes
 - **base-container**: Creates development container with tools and persistent sessions
+- **metrics-container**: Deploys monitoring stack with Grafana, Prometheus, and exporters
 
 ## Commands
 

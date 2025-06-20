@@ -1,0 +1,52 @@
+---
+- name: Create stacks/metrics directory
+  ansible.builtin.file:
+    path: "{{ metrics_dir }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  become: true
+  become_user: "{{ admin_user }}"
+  tags: ['metrics-container']
+
+- name: Create compose.yml from template
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: "{{ metrics_dir }}/compose.yml"
+    mode: '0644'
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  become: true
+  become_user: "{{ admin_user }}"
+  tags: ['metrics-container']
+
+- name: Copy prometheus.yml to metrics directory
+  ansible.builtin.copy:
+    src: prometheus.yml
+    dest: "{{ metrics_dir }}/prometheus.yml"
+    mode: '0644'
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  become: true
+  become_user: "{{ admin_user }}"
+  tags: ['metrics-container']
+
+- name: Copy grafana directory to metrics directory
+  ansible.builtin.copy:
+    src: grafana/
+    dest: "{{ metrics_dir }}/grafana/"
+    mode: '0644'
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  become: true
+  become_user: "{{ admin_user }}"
+  tags: ['metrics-container']
+
+- name: Start metrics stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ metrics_dir }}"
+    state: present
+  become: true
+  become_user: "{{ admin_user }}"
+  tags: ['metrics-container']

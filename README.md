@@ -7,6 +7,7 @@ A live development tool for provisioning Debian 12 VPS servers with Docker and d
 - Automated VPS provisioning with security hardening
 - Docker installation with user permissions
 - Caddy web server with automatic HTTPS
+- Comprehensive metrics monitoring stack (Grafana, Prometheus, exporters)
 - Arch Linux development container with modern tools
 - Zellij terminal multiplexer with fish shell
 
@@ -30,12 +31,18 @@ A live development tool for provisioning Debian 12 VPS servers with Docker and d
    - IPv4 address (auto-resolved from DNS if empty)
    - IPv6 address (auto-resolved from DNS if empty)
    - Admin username (defaults to "admin")
+   - Grafana admin username (defaults to "admin")
+   - Grafana admin password (required)
 
 1. **Access development container**
 
    ```bash
    make login-base FQDN=your-server.com
    ```
+
+1. **Access monitoring dashboard**
+
+   Open `https://metrics.your-server.com` and login with your Grafana credentials.
 
 ## Commands
 
@@ -61,6 +68,17 @@ The base container includes:
 - Zellij with fish shell and Dracula theme
 - Home directory mounted from host
 
+## Metrics Monitoring
+
+The metrics stack provides comprehensive monitoring via:
+
+- **Grafana**: Web-based analytics and monitoring platform
+- **Prometheus**: Time-series database for metrics collection
+- **Node Exporter**: System and hardware metrics
+- **cAdvisor**: Container resource usage and performance metrics
+
+Access the monitoring dashboard at `https://metrics.{your-domain}` with your configured Grafana credentials.
+
 ## Project Structure
 
 ```
@@ -71,7 +89,8 @@ The base container includes:
 │   ├── security-hardening/ # Security configuration
 │   ├── docker-setup/    # Docker installation
 │   ├── caddy-setup/     # Web server
-│   └── base-container/  # Development container
+│   ├── base-container/  # Development container
+│   └── metrics-container/ # Monitoring stack
 ├── scripts/             # Helper scripts
 └── playbook-provision.yml # Main playbook
 ```

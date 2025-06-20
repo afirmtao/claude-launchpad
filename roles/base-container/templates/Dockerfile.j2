@@ -28,7 +28,7 @@ USER {{ admin_user }}
 WORKDIR /home/{{ admin_user }}
 
 # Setup Docker Buildx
-RUN mkdir -p ~/.docker/cli-plugins
+RUN mkdir -p .docker/cli-plugins
 
 # Install yay AUR helper
 RUN git clone https://aur.archlinux.org/yay.git /tmp/yay && \
@@ -37,13 +37,12 @@ RUN git clone https://aur.archlinux.org/yay.git /tmp/yay && \
     cd && \
     rm -rf /tmp/yay
 
-# Configure npm for user-only global packages and install claude-code
-RUN mkdir -p ~/.npm-global && \
-    npm config set prefix ~/.npm-global && \
-    echo 'export PATH=~/.npm-global/bin:~/.cargo/bin:~/go/bin:$PATH' >> ~/.bashrc && \
-    npm install -g @anthropic-ai/claude-code && \
-    ls -la ~/.npm-global/bin/ && \
-    echo "npm prefix: $(npm config get prefix)"
+# Configure npm for user-only global packages
+RUN mkdir -p /home/{{ admin_user }}/.npm-global && \
+    npm config set prefix /home/{{ admin_user }}/.npm-global
+
+# Install claude-code separately to avoid build cache issues
+RUN npm install -g @anthropic-ai/claude-code
 
 # Set environment variables
 ENV PATH="$PATH:/home/{{ admin_user }}/.npm-global/bin:/home/{{ admin_user }}/.cargo/bin:/home/{{ admin_user }}/go/bin"
