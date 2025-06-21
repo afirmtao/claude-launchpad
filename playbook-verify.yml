@@ -165,6 +165,8 @@
       ansible.builtin.shell: |
         set -o pipefail
         timeout 5 bash -c "echo 'quit' | telnet localhost 25" || true
+      args:
+        executable: /bin/bash
       register: smtp_connectivity_test
       changed_when: false
       failed_when: "'220' not in smtp_connectivity_test.stdout"
