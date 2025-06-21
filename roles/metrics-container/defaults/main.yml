@@ -1,5 +1,4 @@
 ---
 # defaults file for metrics-container
 metrics_dir: "/home/{{ admin_user }}/stacks/metrics"
-grafana_admin_user: "admin"
 grafana_admin_password: "changemelater"

@@ -24,5 +24,4 @@ admin_ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC... your-ssh-key-here"
 caddy_email: "admin@{{ fqdn }}"
 
 # Grafana configuration
-grafana_admin_user: "admin"
 grafana_admin_password: "changemelater"

@@ -56,9 +56,6 @@ fi
 read -p "Enter admin username [admin]: " ADMIN_USER
 ADMIN_USER=${ADMIN_USER:-admin}
 
-read -p "Enter Grafana admin username [admin]: " GRAFANA_USER
-GRAFANA_USER=${GRAFANA_USER:-admin}
-
 read -s -p "Enter Grafana admin password: " GRAFANA_PASSWORD
 echo
 if [ -z "$GRAFANA_PASSWORD" ]; then
@@ -74,7 +71,6 @@ sed -i "s/ansible_host: .*/ansible_host: $IPV4/" "$HOST_VARS_FILE"
 sed -i "s/fqdn: .*/fqdn: $FQDN/" "$HOST_VARS_FILE"
 sed -i "s/admin_user: .*/admin_user: $ADMIN_USER/" "$HOST_VARS_FILE"
 sed -i "s|admin_ssh_key: .*|admin_ssh_key: \"$SSH_KEY\"|" "$HOST_VARS_FILE"
-sed -i "s/grafana_admin_user: .*/grafana_admin_user: \"$GRAFANA_USER\"/" "$HOST_VARS_FILE"
 sed -i "s/grafana_admin_password: .*/grafana_admin_password: \"$GRAFANA_PASSWORD\"/" "$HOST_VARS_FILE"
 
 if [ -n "$IPV6" ]; then
