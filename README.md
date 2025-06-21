@@ -31,7 +31,6 @@ A live development tool for provisioning Debian 12 VPS servers with Docker and d
    - IPv4 address (auto-resolved from DNS if empty)
    - IPv6 address (auto-resolved from DNS if empty)
    - Admin username (defaults to "admin")
-   - Grafana admin username (defaults to "admin")
    - Grafana admin password (required)
 
 1. **Access development container**
@@ -52,6 +51,7 @@ A live development tool for provisioning Debian 12 VPS servers with Docker and d
 | `make verify FQDN=domain.com` | Verify configuration |
 | `make login FQDN=domain.com` | SSH to server |
 | `make login-base FQDN=domain.com` | Access development container |
+| `make tag FQDN=domain.com TAG=role` | Run specific playbook tag |
 | `make mount FQDN=domain.com` | Mount server stacks directory |
 | `make unmount FQDN=domain.com` | Unmount server stacks directory |
 | `make lint` | Lint YAML files |

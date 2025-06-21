@@ -125,7 +125,7 @@ scripts/                # helper scripts
   - **Node Exporter**: System and hardware metrics on port 9100
   - **cAdvisor**: Container resource usage and performance metrics on port 8080
 - Grafana configuration:
-  - Admin credentials configurable via `grafana_admin_user` and `grafana_admin_password` variables
+  - Admin credentials use `admin_user` and `grafana_admin_password` variables
   - Pre-configured Prometheus data source
   - Dashboard provisioning for Node Exporter and cAdvisor metrics
   - Persistent data storage via Docker volumes
@@ -152,6 +152,7 @@ scripts/                # helper scripts
 - `make verify FQDN=domain.com` - Verify server configuration
 - `make login FQDN=domain.com` - SSH into server as admin user
 - `make login-base FQDN=domain.com` - Login to base development container
+- `make tag FQDN=domain.com TAG=role` - Run specific playbook tag (e.g., metrics-container, docker-setup)
 - `make mount FQDN=domain.com` - Mount server's ~/stacks directory to ~/mnt/domain.com-stacks
 - `make unmount FQDN=domain.com` - Unmount server's stacks directory
 - `make requirements` - Install Ansible requirements

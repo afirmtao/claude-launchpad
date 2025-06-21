@@ -1,4 +1,4 @@
-.PHONY: help provision login lint format mount unmount
+.PHONY: help provision login lint format mount unmount tag
 
 help: ## Show this help message
 	@echo 'Usage: make [target]'
@@ -32,3 +32,6 @@ mount: ## Mount server stacks directory locally (usage: make mount FQDN=domain.c
 
 unmount: ## Unmount server stacks directory (usage: make unmount FQDN=domain.com)
 	@./scripts/mount.sh $(FQDN) unmount
+
+tag: ## Run specific playbook tag (usage: make tag FQDN=domain.com TAG=metrics-container)
+	@./scripts/tag.sh $(FQDN) $(TAG)
