@@ -1,0 +1,60 @@
+---
+- name: Install Postfix and mailutils
+  ansible.builtin.apt:
+    name:
+      - postfix
+      - mailutils
+    state: present
+    update_cache: true
+  become: true
+  tags: ['postfix-setup']
+
+- name: Stop Postfix service
+  ansible.builtin.systemd:
+    name: postfix
+    state: stopped
+  become: true
+  tags: ['postfix-setup']
+
+- name: Configure Postfix main.cf
+  ansible.builtin.template:
+    src: main.cf.j2
+    dest: /etc/postfix/main.cf
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+  become: true
+  notify: Restart postfix
+  tags: ['postfix-setup']
+
+- name: Configure Postfix master.cf
+  ansible.builtin.template:
+    src: master.cf.j2
+    dest: /etc/postfix/master.cf
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+  become: true
+  notify: Restart postfix
+  tags: ['postfix-setup']
+
+- name: Create postfix aliases
+  ansible.builtin.lineinfile:
+    path: /etc/aliases
+    line: "root: {{ admin_user }}"
+    create: true
+    mode: '0644'
+  become: true
+  notify: Update aliases
+  tags: ['postfix-setup']
+
+- name: Enable and start Postfix service
+  ansible.builtin.systemd:
+    name: postfix
+    enabled: true
+    state: started
+    daemon_reload: true
+  become: true
+  tags: ['postfix-setup']

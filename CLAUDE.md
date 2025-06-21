@@ -133,6 +133,17 @@ scripts/                # helper scripts
 - Accessible via HTTPS at `https://metrics.{fqdn}` through Caddy reverse proxy
 - Automatic startup and restart policies for all services
 
+## Postfix Setup
+
+- Postfix is installed via the `postfix-setup` role with secure configuration
+- SMTP server configured for localhost-only access (inet_interfaces = loopback-only)
+- External connections to port 25 are blocked for security
+- Applications can send emails via localhost:25 without authentication
+- Email aliases configured to forward root mail to admin user
+- TLS support enabled for outgoing mail
+- Local delivery disabled for security (applications use external relays)
+- Verification checks ensure SMTP functionality and security
+
 ## Roles Overview
 
 - **system-update**: Updates system packages and checks for reboot requirements
@@ -141,6 +152,7 @@ scripts/                # helper scripts
 - **time-setup**: Sets timezone and configures NTP synchronization
 - **security-hardening**: Applies OS hardening, SSH hardening, and firewall configuration
 - **docker-setup**: Installs Docker and configures user permissions
+- **postfix-setup**: Installs and configures Postfix SMTP server for local application email delivery
 - **caddy-setup**: Installs Caddy web server with automatic HTTPS, security headers, and structured logging
 - **caddy-auto-reload**: Configures automatic Caddy configuration reload on file changes
 - **base-container**: Creates development container with tools and persistent sessions
@@ -152,7 +164,7 @@ scripts/                # helper scripts
 - `make verify FQDN=domain.com` - Verify server configuration
 - `make login FQDN=domain.com` - SSH into server as admin user
 - `make login-base FQDN=domain.com` - Login to base development container
-- `make tag FQDN=domain.com TAG=role` - Run specific playbook tag (e.g., metrics-container, docker-setup)
+- `make tag FQDN=domain.com TAG=role` - Run specific playbook tag (e.g., postfix-setup, metrics-container, docker-setup)
 - `make mount FQDN=domain.com` - Mount server's ~/stacks directory to ~/mnt/domain.com-stacks
 - `make unmount FQDN=domain.com` - Unmount server's stacks directory
 - `make requirements` - Install Ansible requirements

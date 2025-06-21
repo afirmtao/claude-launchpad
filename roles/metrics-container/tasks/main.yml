@@ -32,6 +32,28 @@
   become_user: "{{ admin_user }}"
   tags: ['metrics-container']
 
+- name: Copy alert rules to metrics directory
+  ansible.builtin.copy:
+    src: alert.rules.yml
+    dest: "{{ metrics_dir }}/alert.rules.yml"
+    mode: '0644'
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  become: true
+  become_user: "{{ admin_user }}"
+  tags: ['metrics-container']
+
+- name: Create alertmanager.yml from template
+  ansible.builtin.template:
+    src: alertmanager.yml.j2
+    dest: "{{ metrics_dir }}/alertmanager.yml"
+    mode: '0644'
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  become: true
+  become_user: "{{ admin_user }}"
+  tags: ['metrics-container']
+
 - name: Copy grafana directory to metrics directory
   ansible.builtin.copy:
     src: grafana/

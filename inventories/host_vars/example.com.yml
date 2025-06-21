@@ -20,8 +20,16 @@ firewall_allowed_ports:
 admin_user: admin
 admin_ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC... your-ssh-key-here"
 
+# Email notification configuration (single admin email)
+admin_email: "admin@{{ fqdn }}"
+
 # Caddy configuration
-caddy_email: "admin@{{ fqdn }}"
+caddy_email: "{{ admin_email }}"
 
 # Grafana configuration
 grafana_admin_password: "changemelater"
+
+# Postfix email configuration
+postfix_hostname: "{{ fqdn }}"
+postfix_domain: "{{ fqdn }}"
+postfix_origin: "{{ fqdn }}"

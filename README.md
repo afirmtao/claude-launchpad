@@ -6,6 +6,7 @@ A live development tool for provisioning Debian 12 VPS servers with Docker and d
 
 - Automated VPS provisioning with security hardening
 - Docker installation with user permissions
+- Postfix SMTP server for application email delivery
 - Caddy web server with automatic HTTPS
 - Comprehensive metrics monitoring stack (Grafana, Prometheus, exporters)
 - Arch Linux development container with modern tools
@@ -79,6 +80,17 @@ The metrics stack provides comprehensive monitoring via:
 
 Access the monitoring dashboard at `https://metrics.{your-domain}` with your configured Grafana credentials.
 
+## Email Delivery
+
+A secure Postfix SMTP server is configured for application email delivery:
+
+- **Local access only**: SMTP server binds to localhost:25 (external access blocked)
+- **Application integration**: Applications can send emails via localhost:25
+- **Alert notifications**: Monitoring alerts are delivered via email to the configured admin address
+- **No authentication required**: For localhost connections (secure by design)
+
+Configure your admin email address in the host_vars file to receive system notifications and monitoring alerts.
+
 ## Project Structure
 
 ```
@@ -88,6 +100,7 @@ Access the monitoring dashboard at `https://metrics.{your-domain}` with your con
 │   ├── user-management/ # Admin user setup
 │   ├── security-hardening/ # Security configuration
 │   ├── docker-setup/    # Docker installation
+│   ├── postfix-setup/   # SMTP server
 │   ├── caddy-setup/     # Web server
 │   ├── base-container/  # Development container
 │   └── metrics-container/ # Monitoring stack

@@ -144,3 +144,33 @@
         path: /etc/systemd/system/caddy-reload.service
       register: caddy_reload_service_check
       failed_when: not caddy_reload_service_check.stat.exists
+
+    - name: Verify Postfix installation
+      ansible.builtin.command: postconf mail_version
+      changed_when: false
+
+    - name: Verify Postfix service status
+      ansible.builtin.systemd:
+        name: postfix
+      register: postfix_service_check
+      failed_when: postfix_service_check.status.ActiveState != 'active'
+
+    - name: Verify SMTP port is listening
+      ansible.builtin.wait_for:
+        port: 25
+        host: 127.0.0.1
+        timeout: 5
+
+    - name: Test SMTP connectivity
+      ansible.builtin.shell: |
+        set -o pipefail
+        timeout 5 bash -c "echo 'quit' | telnet localhost 25" || true
+      register: smtp_connectivity_test
+      changed_when: false
+      failed_when: "'220' not in smtp_connectivity_test.stdout"
+
+    - name: Verify Postfix queue directory exists
+      ansible.builtin.stat:
+        path: /var/spool/postfix
+      register: postfix_queue_check
+      failed_when: not postfix_queue_check.stat.exists

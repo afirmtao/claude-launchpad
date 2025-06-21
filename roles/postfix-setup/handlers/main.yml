@@ -1,0 +1,11 @@
+---
+- name: Restart postfix
+  ansible.builtin.systemd:
+    name: postfix
+    state: restarted
+  become: true
+
+- name: Update aliases
+  ansible.builtin.command: newaliases
+  become: true
+  changed_when: true

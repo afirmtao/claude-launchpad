@@ -63,6 +63,12 @@ if [ -z "$GRAFANA_PASSWORD" ]; then
 	exit 1
 fi
 
+read -p "Enter alert notification email [$ADMIN_USER@$FQDN]: " ALERT_EMAIL
+ALERT_EMAIL=${ALERT_EMAIL:-$ADMIN_USER@$FQDN}
+
+read -p "Enter SMTP from address [alertmanager@$FQDN]: " SMTP_FROM
+SMTP_FROM=${SMTP_FROM:-alertmanager@$FQDN}
+
 mkdir -p "$HOST_VARS_DIR"
 
 # Copy example and replace variables
@@ -72,6 +78,8 @@ sed -i "s/fqdn: .*/fqdn: $FQDN/" "$HOST_VARS_FILE"
 sed -i "s/admin_user: .*/admin_user: $ADMIN_USER/" "$HOST_VARS_FILE"
 sed -i "s|admin_ssh_key: .*|admin_ssh_key: \"$SSH_KEY\"|" "$HOST_VARS_FILE"
 sed -i "s/grafana_admin_password: .*/grafana_admin_password: \"$GRAFANA_PASSWORD\"/" "$HOST_VARS_FILE"
+sed -i "s/alert_email: .*/alert_email: \"$ALERT_EMAIL\"/" "$HOST_VARS_FILE"
+sed -i "s/smtp_from: .*/smtp_from: \"$SMTP_FROM\"/" "$HOST_VARS_FILE"
 
 if [ -n "$IPV6" ]; then
 	sed -i "s/ansible_host_ipv6: .*/ansible_host_ipv6: \"$IPV6\"/" "$HOST_VARS_FILE"

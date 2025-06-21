@@ -11,6 +11,7 @@
     - time-setup
     - security-hardening
     - docker-setup
+    - postfix-setup
     - caddy-setup
     - caddy-auto-reload
     - base-container
